@@ -11,9 +11,9 @@ import com.matheusmartins.instagram.R
 
 class LoadingButton : FrameLayout {
 
-    private lateinit var  button: Button
-    private lateinit var  progress: ProgressBar
-    private var  text: String? = null
+    private lateinit var button: Button
+    private lateinit var progress: ProgressBar
+    private var text: String? = null
 
     constructor(context: Context) : super(context)
 
@@ -21,15 +21,20 @@ class LoadingButton : FrameLayout {
         setup(context, attrs)
     }
 
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
+        context,
+        attrs,
+        defStyleAttr
+    ) {
         setup(context, attrs)
     }
 
     private fun setup(context: Context, attrs: AttributeSet?) {
-        val inflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val inflater: LayoutInflater =
+            context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         inflater.inflate(R.layout.button_loading, this)
 
-        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.LoadingButton, 0,0)
+        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.LoadingButton, 0, 0)
         text = typedArray.getString(R.styleable.LoadingButton_text)
 
         button = getChildAt(0) as Button
@@ -50,7 +55,7 @@ class LoadingButton : FrameLayout {
         button.setOnClickListener(l)
     }
 
-    public fun showProgress(enabled: Boolean) {
+    fun showProgress(enabled: Boolean) {
         if (enabled) {
             button.text = ""
             button.isEnabled = false
