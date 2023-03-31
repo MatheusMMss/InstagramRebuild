@@ -38,8 +38,8 @@
         <fragment
             android:id="@+id/main_fragment"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            android:name="com.matheusmartins.instagram.profile.view.FragmentProfile"
-            tools:layout="@layout/fragment_profile"
+            android:name="com.matheusmartins.instagram.camera.view.FragmentCamera"
+            tools:layout="@layout/fragment_gallery"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 
