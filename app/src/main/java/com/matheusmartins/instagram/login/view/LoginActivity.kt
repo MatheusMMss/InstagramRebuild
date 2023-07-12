@@ -10,45 +10,72 @@ import android.widget.Button
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.matheusmartins.instagram.R
+import com.matheusmartins.instagram.common.util.TxtWatcher
+import com.matheusmartins.instagram.databinding.ActivityLoginBinding
+import com.matheusmartins.instagram.login.Login
+import com.matheusmartins.instagram.login.presentation.LoginPresenter
 
-class LoginActivity : AppCompatActivity() {
+class LoginActivity : AppCompatActivity(), Login.View {
+
+    private lateinit var binding: ActivityLoginBinding
+    override lateinit var presenter: Login.Presenter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login)
+        binding = ActivityLoginBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        val editTextEmail = findViewById<TextInputEditText>(R.id.login_edit_email)
-        val editTextPassword = findViewById<TextInputEditText>(R.id.login_edit_password)
+        presenter = LoginPresenter(this)
 
-        editTextEmail.addTextChangedListener(watcher)
-        editTextPassword.addTextChangedListener(watcher)
+        with(binding) {
+            loginEditEmail.addTextChangedListener(watcher)
+            loginEditEmail.addTextChangedListener(TxtWatcher {
+                displayEmailFailure(null)
+            })
 
-        val buttonEnter = findViewById<LoadingButton>(R.id.login_btn_enter)
-        buttonEnter.setOnClickListener {
-            buttonEnter.showProgress(true)
+            loginEditPassword.addTextChangedListener(watcher)
+            loginEditPassword.addTextChangedListener(TxtWatcher {
+                displayPasswordFailure(null)
+            })
 
-            findViewById<TextInputLayout>(R.id.login_edit_email_input)
-                .error = "Esse e-mail é inválido"
+            loginBtnEnter.setOnClickListener {
+                presenter.login(loginEditEmail.text.toString(), loginEditPassword.text.toString())
 
-            findViewById<TextInputLayout>(R.id.login_edit_password_input)
-                .error = "Senha incorreta"
-
-            Handler(Looper.getMainLooper()).postDelayed({
-                buttonEnter.showProgress(false)
-            }, 2000)
+                Handler(Looper.getMainLooper()).postDelayed({
+                    loginBtnEnter.showProgress(false)
+                }, 2000)
+            }
         }
     }
 
-    private val watcher = object : TextWatcher {
-        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+    override fun onDestroy() {
+        presenter.onDestroy()
+        super.onDestroy()
+    }
 
-        }
+    private val watcher = TxtWatcher {
+        binding.loginBtnEnter.isEnabled = binding.loginEditEmail.text.toString().isNotEmpty()
+                && binding.loginEditPassword.text.toString().isNotEmpty()
 
-        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            findViewById<LoadingButton>(R.id.login_btn_enter).isEnabled = s.toString().isNotEmpty()
-        }
+    }
 
-        override fun afterTextChanged(s: Editable?) {
+    override fun showProgress(enable: Boolean) {
+        binding.loginBtnEnter.showProgress(enable)
 
-        }
+    }
+
+    override fun displayEmailFailure(emailError: Int?) {
+        binding.loginEditEmailInput.error = emailError?.let { getString(it) }
+    }
+
+    override fun displayPasswordFailure(passwordError: Int?) {
+        binding.loginEditPasswordInput.error = passwordError?.let { getString(it) }
+    }
+
+    override fun onUserAuthenticated() {
+        // IR PARA TELA PRINCIPAL
+    }
+
+    override fun onUserUnauthorized() {
+        // MOSTRAR UM ALERTA
     }
 }
