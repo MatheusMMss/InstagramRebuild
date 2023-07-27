@@ -1,5 +1,6 @@
 package com.matheusmartins.instagram.login.view
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
@@ -7,13 +8,19 @@ import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.Button
+import android.widget.Toast
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.matheusmartins.instagram.R
+import com.matheusmartins.instagram.common.base.DependencyInjector
 import com.matheusmartins.instagram.common.util.TxtWatcher
 import com.matheusmartins.instagram.databinding.ActivityLoginBinding
 import com.matheusmartins.instagram.login.Login
+import com.matheusmartins.instagram.login.data.FakeDataSource
+import com.matheusmartins.instagram.login.data.LoginRepository
 import com.matheusmartins.instagram.login.presentation.LoginPresenter
+import com.matheusmartins.instagram.main.view.MainActivity
+import com.matheusmartins.instagram.register.view.RegisterActivity
 
 class LoginActivity : AppCompatActivity(), Login.View {
 
@@ -24,7 +31,7 @@ class LoginActivity : AppCompatActivity(), Login.View {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        presenter = LoginPresenter(this)
+        presenter = LoginPresenter(this, DependencyInjector.loginRepository())
 
         with(binding) {
             loginEditEmail.addTextChangedListener(watcher)
@@ -39,12 +46,15 @@ class LoginActivity : AppCompatActivity(), Login.View {
 
             loginBtnEnter.setOnClickListener {
                 presenter.login(loginEditEmail.text.toString(), loginEditPassword.text.toString())
-
-                Handler(Looper.getMainLooper()).postDelayed({
-                    loginBtnEnter.showProgress(false)
-                }, 2000)
+            }
+            loginTxtRegister.setOnClickListener {
+                goToRegisterScreen()
             }
         }
+    }
+
+    private fun goToRegisterScreen() {
+        startActivity(Intent(this, RegisterActivity::class.java))
     }
 
     override fun onDestroy() {
@@ -72,10 +82,12 @@ class LoginActivity : AppCompatActivity(), Login.View {
     }
 
     override fun onUserAuthenticated() {
-        // IR PARA TELA PRINCIPAL
+        val intent = Intent(this, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+        startActivity(intent)
     }
 
-    override fun onUserUnauthorized() {
-        // MOSTRAR UM ALERTA
+    override fun onUserUnauthorized(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 }
